@@ -6,17 +6,19 @@ import Features from '@/components/Features';
 import ResumeScan from '@/components/ResumeScan';
 import Footer from '@/components/Footer';
 import { Moon, Sun } from 'lucide-react';
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     // Check for stored theme preference or system preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' || savedTheme === 'light') return savedTheme;
-    
-    // Check system preference
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark';
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark' || savedTheme === 'light') return savedTheme;
+      
+      // Check system preference
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
     }
     
     return 'light';
@@ -84,14 +86,14 @@ const Index = () => {
     <div className="min-h-screen bg-background text-foreground">
       {/* Theme toggle in the top right */}
       <div className="fixed top-4 right-4 z-50">
-        <ToggleGroup type="single" value={theme} onValueChange={(value) => value && setTheme(value as 'light' | 'dark')}>
-          <ToggleGroupItem value="light" aria-label="Toggle light mode">
-            <Sun className="h-5 w-5" />
-          </ToggleGroupItem>
-          <ToggleGroupItem value="dark" aria-label="Toggle dark mode">
-            <Moon className="h-5 w-5" />
-          </ToggleGroupItem>
-        </ToggleGroup>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={toggleTheme}
+          className="rounded-full bg-background/50 backdrop-blur-sm"
+        >
+          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </Button>
       </div>
       
       {/* Navbar */}
@@ -101,8 +103,12 @@ const Index = () => {
       <Hero />
       
       {/* Reordered - Resume Scan comes before Features */}
-      <ResumeScan />
-      <Features />
+      <div id="scanner">
+        <ResumeScan />
+      </div>
+      <div id="features">
+        <Features />
+      </div>
       
       <Footer />
     </div>

@@ -76,8 +76,11 @@ const Hero = () => {
     if (scannerSection) {
       scannerSection.scrollIntoView({ behavior: 'smooth' });
       
-      // Dispatch a custom event that the ResumeScan component will listen for
-      window.dispatchEvent(new CustomEvent('showSampleReport'));
+      // Delay the event dispatch to ensure the section is visible
+      setTimeout(() => {
+        // Dispatch a custom event that the ResumeScan component will listen for
+        window.dispatchEvent(new CustomEvent('showSampleReport'));
+      }, 300);
     }
   };
 
