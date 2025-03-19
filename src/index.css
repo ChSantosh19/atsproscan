@@ -115,7 +115,7 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-lg;
+    @apply bg-white/70 dark:bg-black/40 backdrop-blur-md border border-white/20 shadow-lg;
   }
   
   .button-hover {
@@ -132,6 +132,18 @@
   
   .hero-blur-circle {
     @apply absolute rounded-full opacity-70 blur-3xl pointer-events-none;
+  }
+
+  .prose {
+    @apply max-w-none;
+  }
+
+  .prose h1, .prose h2, .prose h3, .prose h4 {
+    @apply text-foreground;
+  }
+
+  .prose p, .prose li {
+    @apply text-muted-foreground;
   }
 }
 

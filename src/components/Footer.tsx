@@ -1,8 +1,13 @@
 
 import React from 'react';
 import { Shield, Globe, FileText, Github } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
+  const openExternalLink = (url: string) => {
+    window.open(url, '_blank', 'noopener noreferrer');
+  };
+
   return (
     <footer className="bg-secondary/30 border-t border-border">
       <div className="section-container py-16">
@@ -31,20 +36,28 @@ const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Resources</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Resume Templates</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">ATS Guide</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Keyword Optimization</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Interview Tips</a></li>
+              <li><a href="https://www.indeed.com/career-advice/resume-samples" 
+                  onClick={() => openExternalLink("https://www.indeed.com/career-advice/resume-samples")}
+                  className="text-muted-foreground hover:text-foreground transition-colors">Resume Templates</a></li>
+              <li><a href="https://www.jobscan.co/blog/ats-friendly-resume/"
+                  onClick={() => openExternalLink("https://www.jobscan.co/blog/ats-friendly-resume/")}
+                  className="text-muted-foreground hover:text-foreground transition-colors">ATS Guide</a></li>
+              <li><a href="https://www.thebalancemoney.com/how-to-include-keywords-on-resume-4151353"
+                  onClick={() => openExternalLink("https://www.thebalancemoney.com/how-to-include-keywords-on-resume-4151353")}
+                  className="text-muted-foreground hover:text-foreground transition-colors">Keyword Optimization</a></li>
+              <li><a href="https://www.themuse.com/advice/interview-questions-and-answers"
+                  onClick={() => openExternalLink("https://www.themuse.com/advice/interview-questions-and-answers")}
+                  className="text-muted-foreground hover:text-foreground transition-colors">Interview Tips</a></li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-2">
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Terms of Use</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Cookie Policy</a></li>
-              <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors">Data Protection</a></li>
+              <li><Link to="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-muted-foreground hover:text-foreground transition-colors">Terms of Use</Link></li>
+              <li><Link to="/cookies" className="text-muted-foreground hover:text-foreground transition-colors">Cookie Policy</Link></li>
+              <li><Link to="/data-protection" className="text-muted-foreground hover:text-foreground transition-colors">Data Protection</Link></li>
             </ul>
           </div>
         </div>
@@ -55,13 +68,19 @@ const Footer = () => {
           </p>
           
           <div className="flex gap-4">
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#" 
+               onClick={() => openExternalLink("https://www.example.com")} 
+               className="text-muted-foreground hover:text-foreground transition-colors">
               <Globe className="w-5 h-5" />
             </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#" 
+               onClick={() => openExternalLink("https://github.com/example/ats-proscan")} 
+               className="text-muted-foreground hover:text-foreground transition-colors">
               <Github className="w-5 h-5" />
             </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
+            <a href="#" 
+               onClick={() => openExternalLink("https://www.example.com/docs")} 
+               className="text-muted-foreground hover:text-foreground transition-colors">
               <FileText className="w-5 h-5" />
             </a>
           </div>

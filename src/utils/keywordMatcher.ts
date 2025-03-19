@@ -1,11 +1,24 @@
 
 // Extract top keywords from job description
 export const extractTopKeywords = (jobDescription: string): string[] => {
-  // In a real implementation, this would use NLP techniques
-  // For demo, we'll use a simple approach
-  
   // Convert to lowercase and clean text
   const text = jobDescription.toLowerCase().replace(/[^\w\s]/g, '');
+  
+  // Common words to ignore (stop words)
+  const stopWords = [
+    'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any',
+    'are', 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between',
+    'both', 'but', 'by', 'can', 'did', 'do', 'does', 'doing', 'down', 'during', 'each',
+    'few', 'for', 'from', 'further', 'had', 'has', 'have', 'having', 'he', 'her', 'here',
+    'hers', 'herself', 'him', 'himself', 'his', 'how', 'i', 'if', 'in', 'into', 'is', 'it',
+    'its', 'itself', 'just', 'like', 'me', 'more', 'most', 'my', 'myself', 'no', 'nor',
+    'not', 'now', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'our', 'ours', 'ourselves',
+    'out', 'over', 'own', 'same', 'she', 'should', 'so', 'some', 'such', 'than', 'that', 'the',
+    'their', 'theirs', 'them', 'themselves', 'then', 'there', 'these', 'they', 'this', 'those',
+    'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was', 'we', 'were', 'what', 'when',
+    'where', 'which', 'while', 'who', 'whom', 'why', 'will', 'with', 'would', 'you', 'your',
+    'yours', 'yourself', 'yourselves'
+  ];
   
   // Define common tech keywords to look for
   const commonKeywords = [
@@ -34,8 +47,8 @@ export const extractTopKeywords = (jobDescription: string): string[] => {
   const wordFrequency: Record<string, number> = {};
   
   words.forEach(word => {
-    // Only consider words with 4+ characters
-    if (word.length >= 4) {
+    // Only consider words with 4+ characters and not in stop words
+    if (word.length >= 4 && !stopWords.includes(word)) {
       wordFrequency[word] = (wordFrequency[word] || 0) + 1;
     }
   });
@@ -44,7 +57,7 @@ export const extractTopKeywords = (jobDescription: string): string[] => {
   const frequentWords = Object.entries(wordFrequency)
     .filter(([word]) => !foundKeywords.includes(word))
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
+    .slice(0, 15)
     .map(([word]) => word);
   
   // Combine found keywords and frequent words, limit to top 15
