@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Upload, FileText, AlertCircle, ArrowRight } from "lucide-react";
@@ -8,6 +8,7 @@ import Results from './Results';
 import { parsePdf } from '@/utils/pdfParser';
 import { analyzeKeywords, extractTopKeywords } from '@/utils/keywordMatcher';
 import { calculateScores } from '@/utils/scoreCalculator';
+import { useToast } from '@/hooks/use-toast';
 
 interface ResumeData {
   text: string;
@@ -24,6 +25,33 @@ const ResumeScan = () => {
   const [step, setStep] = useState(1);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  
+  // Listen for sample report request
+  useEffect(() => {
+    const handleShowSampleReport = () => {
+      const sampleData = localStorage.getItem('sampleReport');
+      if (sampleData) {
+        try {
+          const parsedData = JSON.parse(sampleData);
+          setResults(parsedData);
+          setStep(3);
+          toast({
+            title: "Sample Report Loaded",
+            description: "This is a sample report to demonstrate functionality.",
+          });
+        } catch (err) {
+          console.error("Error parsing sample data", err);
+        }
+      }
+    };
+    
+    window.addEventListener('showSampleReport', handleShowSampleReport);
+    
+    return () => {
+      window.removeEventListener('showSampleReport', handleShowSampleReport);
+    };
+  }, [toast]);
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -43,6 +71,10 @@ const ResumeScan = () => {
         });
         setStep(2);
         setIsProcessing(false);
+        toast({
+          title: "Resume Uploaded",
+          description: "Your resume has been successfully uploaded.",
+        });
       } catch (err) {
         setError('Failed to parse PDF. Please try another file.');
         setIsProcessing(false);
@@ -80,6 +112,10 @@ const ResumeScan = () => {
         });
         setStep(2);
         setIsProcessing(false);
+        toast({
+          title: "Resume Uploaded",
+          description: "Your resume has been successfully uploaded.",
+        });
       } catch (err) {
         setError('Failed to parse PDF. Please try another file.');
         setIsProcessing(false);
@@ -114,6 +150,10 @@ const ResumeScan = () => {
       
       setStep(3);
       setIsProcessing(false);
+      toast({
+        title: "Analysis Complete",
+        description: "Your resume has been analyzed against the job description.",
+      });
     } catch (err) {
       setError('An error occurred during analysis. Please try again.');
       setIsProcessing(false);

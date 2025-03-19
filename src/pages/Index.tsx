@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
+import Navbar from '@/components/Navbar';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import ResumeScan from '@/components/ResumeScan';
@@ -93,9 +94,16 @@ const Index = () => {
         </ToggleGroup>
       </div>
       
+      {/* Navbar */}
+      <Navbar />
+      
+      {/* Hero Section */}
       <Hero />
-      <Features />
+      
+      {/* Reordered - Resume Scan comes before Features */}
       <ResumeScan />
+      <Features />
+      
       <Footer />
     </div>
   );

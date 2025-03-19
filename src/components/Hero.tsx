@@ -23,8 +23,66 @@ const Hero = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const scrollToScanner = () => {
+    const scannerSection = document.getElementById('scanner');
+    if (scannerSection) {
+      scannerSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const showSampleReport = () => {
+    // Sample report data
+    const sampleResults = {
+      resumeFileName: "Sample_Resume.pdf",
+      keywordMatches: {
+        "javascript": true,
+        "react": true,
+        "typescript": true,
+        "node.js": false,
+        "express": false,
+        "rest api": true,
+        "frontend": true,
+        "user interface": true,
+        "responsive design": true,
+        "agile": false,
+        "project management": false,
+        "testing": true,
+        "git": true,
+        "team player": true,
+        "communication skills": true
+      },
+      atsScore: 82,
+      keywordMatchPercentage: 73,
+      interviewProbability: 75,
+      missingKeywords: ["node.js", "express", "agile", "project management"],
+      sectionScore: 10,
+      formatting: {
+        hasBulletPoints: true,
+        hasQuantifiableAchievements: true,
+        hasActionVerbs: true
+      },
+      penalties: {
+        lengthPenalty: 0,
+        formattingPenalty: 0,
+        keywordStuffingPenalty: 3
+      }
+    };
+
+    // Save sample data to localStorage to retrieve in scanner component
+    localStorage.setItem('sampleReport', JSON.stringify(sampleResults));
+    
+    // Navigate to scanner section
+    const scannerSection = document.getElementById('scanner');
+    if (scannerSection) {
+      scannerSection.scrollIntoView({ behavior: 'smooth' });
+      
+      // Dispatch a custom event that the ResumeScan component will listen for
+      window.dispatchEvent(new CustomEvent('showSampleReport'));
+    }
+  };
+
   return (
-    <div className="relative overflow-hidden min-h-screen flex items-center bg-gradient-to-b from-background to-background/90">
+    <div id="home" className="relative overflow-hidden min-h-screen flex items-center bg-gradient-to-b from-background to-background/90">
       {/* Decorative elements */}
       <div className="hero-blur-circle w-[500px] h-[500px] bg-blue-200/30 left-[-100px] top-[-100px]" />
       <div className="hero-blur-circle w-[300px] h-[300px] bg-purple-200/20 right-[-50px] bottom-[20%]" />
@@ -48,10 +106,10 @@ const Hero = () => {
               </p>
               
               <div className="pt-4 flex flex-col sm:flex-row gap-4 animate-slide-down delay-200">
-                <Button className="gap-2 button-hover" size="lg">
+                <Button className="gap-2 button-hover" size="lg" onClick={scrollToScanner}>
                   Try It Now <ArrowRight className="w-4 h-4" />
                 </Button>
-                <Button variant="outline" className="gap-2 button-hover" size="lg">
+                <Button variant="outline" className="gap-2 button-hover" size="lg" onClick={showSampleReport}>
                   <FileText className="w-4 h-4" /> View Sample Report
                 </Button>
               </div>
