@@ -176,6 +176,23 @@ export const extractTopKeywords = (jobDescription: string): string[] => {
   
   // Get phrases (2-3 word combinations) that might be important terms
   const phrases: Record<string, number> = {};
+  
+  // For phrase detection and overlap prevention
+  const isSubPhraseOf = (shortPhrase: string, longPhrase: string): boolean => {
+    return longPhrase.includes(shortPhrase);
+  };
+  
+  // Check if a phrase is a constituent part of any existing phrase
+  const isPartOfExistingPhrase = (newPhrase: string, existingPhrases: string[]): boolean => {
+    for (const existing of existingPhrases) {
+      if (isSubPhraseOf(newPhrase, existing) || isSubPhraseOf(existing, newPhrase)) {
+        return true;
+      }
+    }
+    return false;
+  };
+  
+  // Extract phrases more carefully to avoid overlaps
   for (let i = 0; i < words.length - 1; i++) {
     const word1 = words[i].toLowerCase();
     const word2 = words[i + 1].toLowerCase();
@@ -216,17 +233,41 @@ export const extractTopKeywords = (jobDescription: string): string[] => {
     .map(([phrase]) => phrase);
   
   // Combine industry keywords, frequent words, and phrases, prioritizing industry terms
-  // Limit to top 25 for better focus (increased from 20)
+  // Limit to top 25 for better focus
   const priorityKeywords = [...foundIndustryKeywords];
   const remainingSlots = Math.max(0, 25 - priorityKeywords.length);
   
   // Add other high-frequency words and phrases to fill remaining slots
   const additionalKeywords = [...frequentPhrases, ...frequentWords].slice(0, remainingSlots);
   
-  // Get unique keywords only
-  const allKeywords = Array.from(new Set([...priorityKeywords, ...additionalKeywords]));
+  // Combine all keywords
+  let combinedKeywords = [...priorityKeywords, ...additionalKeywords];
   
-  return allKeywords;
+  // Advanced duplicate and overlap filtering
+  const filteredKeywords: string[] = [];
+  
+  // First pass: add longer phrases
+  combinedKeywords.sort((a, b) => b.split(' ').length - a.split(' ').length);
+  
+  for (const keyword of combinedKeywords) {
+    // Only add if it's not a sub-phrase of an already added keyword
+    if (!filteredKeywords.some(existing => 
+      isSubPhraseOf(keyword, existing) && keyword !== existing
+    )) {
+      filteredKeywords.push(keyword);
+    }
+  }
+  
+  // Second pass: filter out shorter phrases that are just parts of longer ones
+  const finalKeywords = filteredKeywords.filter((keyword, idx) => {
+    // Keep the keyword if it's not a sub-phrase of ANY other keyword (except itself)
+    return !filteredKeywords.some((other, otherIdx) => 
+      idx !== otherIdx && 
+      isSubPhraseOf(keyword, other)
+    );
+  });
+  
+  return finalKeywords;
 };
 
 // Analyze which keywords are present in the resume with improved matching
@@ -243,14 +284,19 @@ export const analyzeKeywords = (resumeText: string, keywords: string[]): Record<
       keyword.replace(/ing\b/g, ''),          // Remove -ing suffix
       keyword.replace(/s\b/g, ''),            // Remove plural s
       keyword.replace(/ed\b/g, ''),           // Remove -ed suffix
-      keyword.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase() // Split camelCase
+      keyword.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase(), // Split camelCase
+      // Add stemming for common word endings
+      keyword.replace(/tion\b/g, 't'),        // Transform -tion ending
+      keyword.replace(/ly\b/g, '')            // Remove -ly suffix
     ];
     
-    // Check for any variant matches
+    // Enhanced pattern matching for partial word matching and context awareness
     results[keyword] = variations.some(variant => 
       text.includes(variant) || 
-      // Also check for word boundary matches
-      new RegExp(`\\b${variant}\\b`, 'i').test(text)
+      // Also check for word boundary matches with more context
+      new RegExp(`\\b${variant}\\b`, 'i').test(text) ||
+      // Check for compound variations (hyphenated vs separate words)
+      new RegExp(`\\b${variant.replace(/ /g, '[- ]')}\\b`, 'i').test(text)
     );
   });
   
