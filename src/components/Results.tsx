@@ -23,17 +23,19 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
   PolarRadiusAxis,
   Radar,
   AreaChart,
-  Area
+  Area,
+  Cell,
+  Treemap,
+  Legend,
+  ScatterChart,
+  Scatter,
+  ZAxis
 } from 'recharts';
 
 interface ResultsProps {
@@ -114,12 +116,18 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
     { name: 'Interview Probability', value: interviewProbability }
   ];
 
-  // Prepare data for pie chart
+  // Prepare data for treemap chart (replacing pie chart)
   const totalKeywords = Object.keys(keywordMatches).length;
   const matchedKeywords = Object.values(keywordMatches).filter(Boolean).length;
-  const pieChartData = [
-    { name: 'Matched', value: matchedKeywords },
-    { name: 'Missing', value: totalKeywords - matchedKeywords }
+  
+  const keywordTreemapData = [
+    {
+      name: 'Keywords',
+      children: [
+        { name: 'Matched Keywords', size: matchedKeywords, color: '#4ade80' },
+        { name: 'Missing Keywords', size: totalKeywords - matchedKeywords, color: '#fb923c' }
+      ]
+    }
   ];
 
   // Prepare data for radar chart
@@ -140,7 +148,14 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
     { name: 'Target', score: Math.min(100, atsScore + 10) }
   ];
   
-  const COLORS = ['#4ade80', '#fb923c'];
+  // Prepare data for scatter chart (keyword distribution)
+  const scatterData = Object.entries(keywordMatches).map(([keyword, found], index) => ({
+    keyword,
+    x: index % 4,  // Distribute across 4 columns
+    y: Math.floor(index / 4),  // Rows depend on number of items
+    z: found ? 200 : 50,  // Size - larger for found keywords
+    found
+  }));
 
   return (
     <div className="animate-fade-in">
@@ -293,6 +308,16 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
                       : "Your resume needs improvement to increase your interview chances. Add the missing keywords and follow our optimization tips."}
                 </p>
               </div>
+              
+              <div className="mt-4 p-3 bg-primary/5 border border-primary/10 rounded-lg">
+                <h5 className="text-sm font-medium mb-2">Key Insights:</h5>
+                <ul className="list-disc pl-5 text-xs space-y-1 text-muted-foreground">
+                  <li>Interview probability is heavily influenced by keyword match percentage</li>
+                  <li>A keyword match below 40% significantly reduces chances of getting past ATS</li>
+                  <li>{keywordMatchPercentage < 60 ? "Your current keyword match is below optimal levels" : "Your keyword match shows good alignment with the job"}</li>
+                  <li>Recruiters typically spend less than 10 seconds on each resume that passes the ATS</li>
+                </ul>
+              </div>
             </div>
           </div>
           
@@ -349,6 +374,49 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
               </ResponsiveContainer>
             </div>
           </div>
+          
+          <div>
+            <h4 className="text-lg font-semibold mb-3 flex items-center gap-2 animate-slide-down delay-500">
+              <FileText className="w-5 h-5 text-primary" /> Keyword Distribution
+            </h4>
+            
+            <div className="bg-secondary/50 dark:bg-secondary/30 backdrop-blur-sm rounded-lg p-4 chart-container opacity-0">
+              <ResponsiveContainer width="100%" height={250}>
+                <ScatterChart
+                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" dataKey="x" name="category" tick={false} />
+                  <YAxis type="number" dataKey="y" name="group" tick={false} />
+                  <ZAxis type="number" dataKey="z" range={[50, 200]} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }}
+                    formatter={(value, name, props) => {
+                      if (name === 'z') return null;
+                      return props.payload.keyword;
+                    }}
+                    cursor={{ strokeDasharray: '3 3' }}
+                  />
+                  <Scatter 
+                    data={scatterData.filter(item => item.found)} 
+                    fill="#4ade80" 
+                    shape="circle"
+                  />
+                  <Scatter 
+                    data={scatterData.filter(item => !item.found)} 
+                    fill="#fb923c" 
+                    shape="circle"
+                  />
+                  <Legend 
+                    payload={[
+                      { value: 'Found Keywords', type: 'circle', color: '#4ade80' },
+                      { value: 'Missing Keywords', type: 'circle', color: '#fb923c' }
+                    ]}
+                  />
+                </ScatterChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
         
         <div className="space-y-6">
@@ -381,31 +449,34 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
             <h4 className="text-lg font-semibold mb-3 animate-slide-down delay-100">Keyword Coverage</h4>
             <div className="bg-secondary/50 dark:bg-secondary/30 backdrop-blur-sm rounded-lg p-4 chart-container opacity-0">
               <ResponsiveContainer width="100%" height={220}>
-                <PieChart>
-                  <Pie
-                    data={pieChartData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    animationDuration={1500}
-                    animationEasing="ease-out"
-                  >
-                    {pieChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
+                <Treemap
+                  data={keywordTreemapData}
+                  dataKey="size"
+                  ratio={4/3}
+                  stroke="#fff"
+                  animationDuration={1500}
+                  animationEasing="ease-out"
+                >
                   <Tooltip 
                     contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }} 
                     itemStyle={{ color: '#fff' }}
                     formatter={(value, name) => [`${value} keywords`, name]}
                   />
-                  <Legend />
-                </PieChart>
+                  {keywordTreemapData[0].children.map((item, index) => (
+                    <Cell key={`cell-${index}`} fill={item.color} />
+                  ))}
+                </Treemap>
               </ResponsiveContainer>
+              <div className="flex justify-center mt-3 gap-4">
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-[#4ade80] rounded-sm mr-1"></div>
+                  <span className="text-xs text-muted-foreground">Matched ({matchedKeywords})</span>
+                </div>
+                <div className="flex items-center">
+                  <div className="w-3 h-3 bg-[#fb923c] rounded-sm mr-1"></div>
+                  <span className="text-xs text-muted-foreground">Missing ({totalKeywords - matchedKeywords})</span>
+                </div>
+              </div>
             </div>
           </div>
           

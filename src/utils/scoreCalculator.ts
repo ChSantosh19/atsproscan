@@ -167,9 +167,18 @@ export const calculateScores = (
   
   atsScore += educationScore;
   
-  // Calculate interview probability based on more factors
-  // Base on ATS score but with additional weighting for key factors
-  let interviewProbability = atsScore;
+  // IMPROVED: Calculate interview probability with stronger correlation to keyword matches
+  // Make keyword matching a much more significant factor in the interview probability
+  let interviewProbability = 0;
+  
+  // Make keyword match percentage the primary factor (60% of the total score)
+  // This ensures that low keyword match = low interview probability
+  const keywordWeight = 0.6;
+  interviewProbability += keywordMatchPercentage * keywordWeight;
+  
+  // Add ATS score as a secondary factor (25% of the total score)
+  const atsWeight = 0.25;
+  interviewProbability += Math.min(100, Math.max(0, atsScore)) * atsWeight;
   
   // Job-specific terms that often appear in descriptions
   const jobSpecificTerms = [
@@ -192,20 +201,17 @@ export const calculateScores = (
   // Calculate a match percentage for these specific terms
   const termMatchPercentage = requiredTerms > 0 ? Math.round((matchedTerms / requiredTerms) * 100) : 100;
   
-  // Weight this more heavily in the interview probability (±15 points)
-  if (termMatchPercentage >= 75) {
-    interviewProbability += 15;
-  } else if (termMatchPercentage >= 50) {
-    interviewProbability += 5;
-  } else if (termMatchPercentage < 25) {
-    interviewProbability -= 15;
-  }
+  // Add specific term match as another factor (15% of the total score)
+  const termMatchWeight = 0.15;
+  interviewProbability += termMatchPercentage * termMatchWeight;
   
-  // Check for contact information as ATS systems need this
-  if (hasEmail && hasPhone) {
-    interviewProbability += 5;
-  } else {
-    interviewProbability -= 10; // Big penalty for missing contact info
+  // Thresholds for getting an interview
+  // If the keyword match is below 40%, the candidate is unlikely to get past ATS
+  // Apply a significant penalty for low keyword match
+  if (keywordMatchPercentage < 40) {
+    interviewProbability = Math.max(5, interviewProbability * 0.4);
+  } else if (keywordMatchPercentage < 60) {
+    interviewProbability = Math.max(15, interviewProbability * 0.7);
   }
   
   // Context matching: Check if your experience matches the job context
@@ -234,7 +240,14 @@ export const calculateScores = (
     ).length;
     
     contextMatchScore = Math.round((resumeContextMatches / matchingContextTerms.length) * 10);
-    interviewProbability += contextMatchScore;
+    
+    // If the context doesn't match at all, apply another penalty
+    if (resumeContextMatches === 0) {
+      interviewProbability = Math.max(10, interviewProbability * 0.6);
+    } else {
+      // Add the context match as a small bonus
+      interviewProbability += contextMatchScore * 0.03;
+    }
   }
   
   // Cap scores at 100 and ensure they're not negative
