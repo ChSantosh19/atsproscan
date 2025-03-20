@@ -55,9 +55,9 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
   
   // Helper function to get status color
   const getStatusColor = (score: number) => {
-    if (score >= 80) return 'bg-green-100 text-green-800';
-    if (score >= 60) return 'bg-yellow-100 text-yellow-800';
-    return 'bg-red-100 text-red-800';
+    if (score >= 80) return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+    if (score >= 60) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+    return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
   };
 
   return (
@@ -85,7 +85,7 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white/40 backdrop-blur-sm rounded-lg p-4 flex flex-col items-center">
+          <div className="bg-white/40 dark:bg-white/10 backdrop-blur-sm rounded-lg p-4 flex flex-col items-center">
             <div className="text-4xl font-bold mb-1 text-primary">{atsScore}%</div>
             <div className="text-sm font-medium mb-2">ATS Compatibility</div>
             <div className={cn(
@@ -96,7 +96,7 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
             </div>
           </div>
           
-          <div className="bg-white/40 backdrop-blur-sm rounded-lg p-4 flex flex-col items-center">
+          <div className="bg-white/40 dark:bg-white/10 backdrop-blur-sm rounded-lg p-4 flex flex-col items-center">
             <div className="text-4xl font-bold mb-1 text-primary">{keywordMatchPercentage}%</div>
             <div className="text-sm font-medium mb-2">Keyword Match</div>
             <div className={cn(
@@ -107,7 +107,7 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
             </div>
           </div>
           
-          <div className="bg-white/40 backdrop-blur-sm rounded-lg p-4 flex flex-col items-center">
+          <div className="bg-white/40 dark:bg-white/10 backdrop-blur-sm rounded-lg p-4 flex flex-col items-center">
             <div className="text-4xl font-bold mb-1 text-primary">{interviewProbability}%</div>
             <div className="text-sm font-medium mb-2">Interview Probability</div>
             <div className={cn(
@@ -127,7 +127,7 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
               <FileText className="w-5 h-5 text-primary" /> Keyword Analysis
             </h4>
             
-            <div className="bg-secondary/50 rounded-lg p-4 space-y-4">
+            <div className="bg-secondary/50 dark:bg-secondary/30 rounded-lg p-4 space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4" ref={chartRef}>
                 {Object.entries(keywordMatches).map(([keyword, found], index) => (
                   <div key={index} className="flex items-center gap-3">
@@ -154,13 +154,13 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
             </h4>
             
             {missingKeywords.length > 0 ? (
-              <div className="bg-red-50 rounded-lg p-4">
+              <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
                 <p className="text-sm text-muted-foreground mb-3">
                   These keywords were found in the job description but are missing from your resume:
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {missingKeywords.map((keyword: string, index: number) => (
-                    <div key={index} className="bg-white px-3 py-1 rounded-full text-sm border border-red-200 flex items-center">
+                    <div key={index} className="bg-white dark:bg-red-800/30 px-3 py-1 rounded-full text-sm border border-red-200 dark:border-red-700 flex items-center dark:text-red-200">
                       <XCircle className="w-4 h-4 text-red-500 mr-1" />
                       {keyword}
                     </div>
@@ -168,7 +168,7 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
                 </div>
               </div>
             ) : (
-              <div className="bg-green-50 rounded-lg p-4 flex items-center gap-3">
+              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 flex items-center gap-3">
                 <CheckCircle className="w-5 h-5 text-green-500" />
                 <p className="text-sm">Great job! Your resume contains all the critical keywords.</p>
               </div>
@@ -180,7 +180,7 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
               <Mail className="w-5 h-5 text-primary" /> Interview Potential
             </h4>
             
-            <div className="bg-secondary/50 rounded-lg p-4">
+            <div className="bg-secondary/50 dark:bg-secondary/30 rounded-lg p-4">
               <p className="text-sm text-muted-foreground mb-3">
                 Based on your ATS score and keyword matches, we estimate your probability of getting an interview call:
               </p>
@@ -219,7 +219,7 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
           <div>
             <h4 className="text-lg font-semibold mb-3">Improvement Tips</h4>
             
-            <div className="bg-secondary/50 rounded-lg p-4 space-y-4">
+            <div className="bg-secondary/50 dark:bg-secondary/30 rounded-lg p-4 space-y-4">
               <div className="flex items-start gap-3">
                 <div className="mt-1 bg-primary/10 rounded-full p-1">
                   <CheckCircle className="w-3 h-3 text-primary" />
@@ -272,7 +272,7 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
             </div>
           </div>
           
-          <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
+          <div className="bg-primary/5 dark:bg-primary/10 rounded-lg p-4 border border-primary/10">
             <h4 className="text-sm font-medium mb-2">Need More Help?</h4>
             <p className="text-xs text-muted-foreground mb-4">
               Check out our free resources to help you optimize your resume and increase your chances of landing interviews.

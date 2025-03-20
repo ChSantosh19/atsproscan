@@ -47,23 +47,43 @@ export const calculateScores = (
   const actionVerbs = [
     'achieved', 'improved', 'developed', 'managed', 'created', 'implemented', 
     'designed', 'led', 'increased', 'decreased', 'reduced', 'negotiated', 
-    'coordinated', 'delivered', 'generated', 'launched', 'spearheaded'
+    'coordinated', 'delivered', 'generated', 'launched', 'spearheaded',
+    'optimized', 'streamlined', 'transformed', 'unified', 'standardized',
+    'automated', 'accelerated', 'produced', 'positioned', 'engineered',
+    'architected', 'established', 'executed', 'facilitated', 'formulated',
+    'initiated', 'mentored', 'organized', 'presented', 'published',
+    'resolved', 'restructured', 'revitalized', 'secured', 'supervised'
   ];
   
-  const hasActionVerbs = actionVerbs.some(verb => resumeText.toLowerCase().includes(verb));
-  if (hasActionVerbs) atsScore += 5;
+  let actionVerbCount = 0;
+  actionVerbs.forEach(verb => {
+    if (resumeText.toLowerCase().includes(verb)) {
+      actionVerbCount++;
+    }
+  });
+  
+  // Give points based on action verb diversity (0-10 points)
+  const actionVerbsScore = Math.min(10, Math.floor(actionVerbCount / 3));
+  atsScore += actionVerbsScore;
   
   // Add penalty factors
   
   // Check resume length (text length as proxy)
+  let lengthPenalty = 0;
   if (resumeText.length < 1500) {
-    atsScore -= 10; // Too short
+    lengthPenalty = -10; // Too short
+    atsScore += lengthPenalty;
+  } else if (resumeText.length > 7000) {
+    lengthPenalty = -5; // Too long
+    atsScore += lengthPenalty;
   }
   
   // Check for potential over-formatting
   const potentialFormatting = /\||\{|\}|\[|\]|\\|\/\/|http|www|\*\*|__|==|~~/.test(resumeText);
+  let formattingPenalty = 0;
   if (potentialFormatting) {
-    atsScore -= 5; // May have formatting issues
+    formattingPenalty = -5; // May have formatting issues
+    atsScore += formattingPenalty;
   }
   
   // Check for keyword stuffing (same keyword repeating too many times)
@@ -88,11 +108,14 @@ export const calculateScores = (
   // Calculate industry relevance
   // Check if the resume contains industry-specific terminology
   const industries = [
-    { name: 'technology', terms: ['software', 'development', 'programming', 'application', 'tech', 'code', 'solution'] },
-    { name: 'healthcare', terms: ['patient', 'care', 'medical', 'clinical', 'health', 'treatment', 'doctor'] },
-    { name: 'finance', terms: ['financial', 'investment', 'banking', 'budget', 'revenue', 'profit', 'accounting'] },
-    { name: 'marketing', terms: ['campaign', 'brand', 'market', 'advertising', 'customer', 'social media', 'content'] },
-    { name: 'education', terms: ['student', 'teaching', 'curriculum', 'learning', 'education', 'academic', 'school'] }
+    { name: 'technology', terms: ['software', 'development', 'programming', 'application', 'tech', 'code', 'solution', 'api', 'system', 'platform', 'cloud', 'architecture', 'framework', 'agile', 'devops'] },
+    { name: 'healthcare', terms: ['patient', 'care', 'medical', 'clinical', 'health', 'treatment', 'doctor', 'nurse', 'hospital', 'diagnostic', 'therapy', 'pharmaceutical', 'wellness', 'provider', 'caregiver'] },
+    { name: 'finance', terms: ['financial', 'investment', 'banking', 'budget', 'revenue', 'profit', 'accounting', 'assets', 'portfolio', 'equity', 'capital', 'trading', 'risk', 'compliance', 'audit'] },
+    { name: 'marketing', terms: ['campaign', 'brand', 'market', 'advertising', 'customer', 'social media', 'content', 'digital', 'seo', 'analytics', 'audience', 'conversion', 'traffic', 'engagement', 'funnel'] },
+    { name: 'education', terms: ['student', 'teaching', 'curriculum', 'learning', 'education', 'academic', 'school', 'course', 'instructor', 'classroom', 'pedagogy', 'assessment', 'training', 'educational', 'faculty'] },
+    { name: 'manufacturing', terms: ['production', 'manufacturing', 'assembly', 'factory', 'quality', 'lean', 'process', 'engineering', 'operational', 'machinery', 'inventory', 'supply chain', 'materials', 'fabrication', 'industrial'] },
+    { name: 'retail', terms: ['retail', 'store', 'merchandise', 'sales', 'customer', 'inventory', 'e-commerce', 'pos', 'omnichannel', 'consumer', 'shopping', 'checkout', 'pricing', 'promotion', 'assortment'] },
+    { name: 'consulting', terms: ['consulting', 'client', 'engagement', 'solution', 'advisory', 'strategy', 'business', 'professional services', 'recommendation', 'stakeholder', 'deliverable', 'methodology', 'framework', 'assessment', 'implementation'] }
   ];
   
   // Check which industry the job description matches with
@@ -105,6 +128,7 @@ export const calculateScores = (
   
   // Get the top matching industry for the job
   const topJobIndustry = jobIndustries[0]?.name;
+  let industryRelevanceScore = 0;
   
   if (topJobIndustry) {
     // Check if resume matches the same industry
@@ -114,10 +138,34 @@ export const calculateScores = (
         resumeText.toLowerCase().includes(term)
       ).length;
       
-      const industryRelevanceScore = Math.round((resumeIndustryTerms / matchingIndustry.terms.length) * 10);
+      industryRelevanceScore = Math.round((resumeIndustryTerms / matchingIndustry.terms.length) * 15);
       atsScore += industryRelevanceScore;
     }
   }
+  
+  // Check for contact information relevance
+  let contactInfoScore = 0;
+  const hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(resumeText);
+  const hasPhone = /(\+\d{1,3}[\s-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/.test(resumeText);
+  const hasLinkedIn = /linkedin\.com\/in\//.test(resumeText);
+  const hasPortfolio = /portfolio|github\.com|gitlab\.com|bitbucket\.org/.test(resumeText);
+  
+  if (hasEmail) contactInfoScore += 2;
+  if (hasPhone) contactInfoScore += 2;
+  if (hasLinkedIn) contactInfoScore += 1;
+  if (hasPortfolio) contactInfoScore += 1;
+  
+  atsScore += contactInfoScore;
+  
+  // Check for education relevance
+  let educationScore = 0;
+  const hasDegree = /bachelor|master|phd|mba|bs|ba|ms|ma|doctorate|degree/.test(resumeText.toLowerCase());
+  const hasSchool = /university|college|institute|school/.test(resumeText.toLowerCase());
+  
+  if (hasDegree) educationScore += 3;
+  if (hasSchool) educationScore += 2;
+  
+  atsScore += educationScore;
   
   // Calculate interview probability based on more factors
   // Base on ATS score but with additional weighting for key factors
@@ -154,39 +202,83 @@ export const calculateScores = (
   }
   
   // Check for contact information as ATS systems need this
-  const hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(resumeText);
-  const hasPhone = /(\+\d{1,3}[\s-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/.test(resumeText);
-  
   if (hasEmail && hasPhone) {
     interviewProbability += 5;
   } else {
     interviewProbability -= 10; // Big penalty for missing contact info
   }
   
+  // Context matching: Check if your experience matches the job context
+  // For example, if the job is for a manager role, check for management experience
+  let contextMatchScore = 0;
+  
+  const contextTerms = {
+    'management': ['manager', 'management', 'lead', 'team lead', 'supervisor', 'director'],
+    'technical': ['developer', 'engineer', 'programmer', 'architect', 'technical', 'technologist'],
+    'creative': ['designer', 'creative', 'artist', 'writer', 'content creator'],
+    'analytical': ['analyst', 'analytics', 'analysis', 'research', 'data']
+  };
+  
+  // Determine which context the job belongs to
+  const jobContexts = Object.entries(contextTerms).map(([context, terms]) => {
+    const matchCount = terms.filter(term => jobDescription.toLowerCase().includes(term)).length;
+    return { context, score: matchCount / terms.length };
+  }).sort((a, b) => b.score - a.score);
+  
+  const topJobContext = jobContexts[0]?.context;
+  
+  if (topJobContext && jobContexts[0]?.score > 0.3) { // Only if there's a clear context
+    const matchingContextTerms = contextTerms[topJobContext];
+    const resumeContextMatches = matchingContextTerms.filter(term => 
+      resumeText.toLowerCase().includes(term)
+    ).length;
+    
+    contextMatchScore = Math.round((resumeContextMatches / matchingContextTerms.length) * 10);
+    interviewProbability += contextMatchScore;
+  }
+  
   // Cap scores at 100 and ensure they're not negative
-  atsScore = Math.min(100, Math.max(0, atsScore));
-  interviewProbability = Math.min(100, Math.max(0, interviewProbability));
+  atsScore = Math.min(100, Math.max(0, Math.round(atsScore)));
+  interviewProbability = Math.min(100, Math.max(0, Math.round(interviewProbability)));
   
   // Get missing keywords
   const missingKeywords = Object.entries(keywordMatches)
     .filter(([_, found]) => !found)
     .map(([keyword]) => keyword);
   
+  // Return comprehensive results with detailed scoring breakdowns
   return {
     atsScore,
     keywordMatchPercentage,
     interviewProbability,
     missingKeywords,
     sectionScore,
+    industryRelevanceScore,
     formatting: {
       hasBulletPoints,
       hasQuantifiableAchievements,
-      hasActionVerbs
+      actionVerbsScore
+    },
+    contactInfo: {
+      hasEmail,
+      hasPhone,
+      hasLinkedIn,
+      hasPortfolio,
+      score: contactInfoScore
+    },
+    education: {
+      hasDegree,
+      hasSchool,
+      score: educationScore
     },
     penalties: {
-      lengthPenalty: resumeText.length < 1500 ? -10 : 0,
-      formattingPenalty: potentialFormatting ? -5 : 0,
+      lengthPenalty,
+      formattingPenalty,
       keywordStuffingPenalty
+    },
+    contextMatch: {
+      matchedContext: topJobContext,
+      score: contextMatchScore
     }
   };
 };

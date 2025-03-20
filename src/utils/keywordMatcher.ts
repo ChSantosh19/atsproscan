@@ -31,7 +31,15 @@ export const extractTopKeywords = (jobDescription: string): string[] => {
     'several', 'shall', 'since', 'still', 'take', 'taken', 'tell', 'tends', 'think', 'three',
     'thus', 'truly', 'try', 'twice', 'two', 'under', 'unfortunately', 'unless', 'unlike', 
     'unlikely', 'use', 'used', 'using', 'various', 'want', 'way', 'well', 'went', 'whatever',
-    'whether', 'within', 'without', 'yet'
+    'whether', 'within', 'without', 'yet',
+    // Additional common words in job descriptions but not relevant as skills
+    'position', 'job', 'role', 'work', 'company', 'candidate', 'candidates', 'required',
+    'requires', 'responsibilities', 'responsibility', 'qualifications', 'qualification',
+    'opportunity', 'opportunities', 'years', 'year', 'experience', 'time', 'day', 'days',
+    'week', 'weeks', 'month', 'months', 'apply', 'application', 'submit', 'resume',
+    'location', 'salary', 'benefits', 'full', 'details', 'description', 'title',
+    'join', 'team', 'based', 'understand', 'understanding', 'working', 'works',
+    'date', 'employer', 'employers', 'employee', 'employees', 'respond', 'response'
   ];
   
   // Define industry-specific keyword categories
@@ -53,7 +61,9 @@ export const extractTopKeywords = (jobDescription: string): string[] => {
       'monorepo', 'lerna', 'yarn workspaces', 'npm', 'package management',
       'python', 'java', 'c++', 'c#', 'php', 'ruby', 'go', 'rust', 'swift',
       'database', 'sql', 'nosql', 'mongodb', 'postgresql', 'mysql', 'oracle',
-      'microservices', 'serverless', 'apis', 'rest', 'soap', 'graphql'
+      'microservices', 'serverless', 'apis', 'rest', 'soap', 'graphql',
+      'frontend', 'backend', 'fullstack', 'full-stack', 'devops', 'devsecops',
+      'cloud', 'infrastructure', 'security', 'cybersecurity', 'encryption'
     ],
     // Data Science & AI
     dataScience: [
@@ -62,7 +72,9 @@ export const extractTopKeywords = (jobDescription: string): string[] => {
       'python', 'pandas', 'numpy', 'scikit-learn', 'tensorflow', 'pytorch', 'keras',
       'nlp', 'computer vision', 'big data', 'hadoop', 'spark', 'tableau', 'power bi',
       'etl', 'data warehousing', 'data modeling', 'regression', 'classification',
-      'clustering', 'reinforcement learning', 'jupyter', 'anaconda'
+      'clustering', 'reinforcement learning', 'jupyter', 'anaconda', 'data science',
+      'predictive modeling', 'analytics', 'business intelligence', 'data engineering',
+      'data pipeline', 'data lake', 'data transformation', 'snowflake', 'databricks'
     ],
     // Business & Management
     business: [
@@ -71,7 +83,9 @@ export const extractTopKeywords = (jobDescription: string): string[] => {
       'business intelligence', 'market analysis', 'competitive analysis', 'forecasting',
       'profit and loss', 'operations management', 'supply chain', 'logistics',
       'negotiation', 'client relationship', 'vendor management', 'crm', 'erp',
-      'change management', 'process improvement', 'lean', 'six sigma'
+      'change management', 'process improvement', 'lean', 'six sigma', 'business strategy',
+      'business development', 'executive leadership', 'p&l', 'product management',
+      'program management', 'portfolio management'
     ],
     // Marketing & Sales
     marketing: [
@@ -80,7 +94,9 @@ export const extractTopKeywords = (jobDescription: string): string[] => {
       'facebook ads', 'instagram marketing', 'tiktok marketing', 'influencer marketing',
       'brand management', 'public relations', 'market research', 'customer segmentation',
       'lead generation', 'conversion optimization', 'a/b testing', 'customer journey',
-      'sales funnel', 'crm', 'hubspot', 'salesforce', 'customer acquisition'
+      'sales funnel', 'crm', 'hubspot', 'salesforce', 'customer acquisition',
+      'marketing strategy', 'campaign management', 'growth marketing', 'demand generation',
+      'content strategy', 'copywriting', 'seo/sem', 'market positioning'
     ],
     // Finance & Accounting
     finance: [
@@ -88,34 +104,54 @@ export const extractTopKeywords = (jobDescription: string): string[] => {
       'bookkeeping', 'accounts payable', 'accounts receivable', 'general ledger', 'taxation',
       'audit', 'compliance', 'financial modeling', 'valuation', 'equity research',
       'investment banking', 'portfolio management', 'risk management', 'financial statements',
-      'balance sheet', 'income statement', 'cash flow', 'quickbooks', 'sap', 'oracle financials'
+      'balance sheet', 'income statement', 'cash flow', 'quickbooks', 'sap', 'oracle financials',
+      'cpa', 'cfa', 'financial planning', 'wealth management', 'asset management', 'hedge fund',
+      'private equity', 'venture capital', 'mergers and acquisitions', 'm&a'
     ],
     // Healthcare
     healthcare: [
       'patient care', 'clinical', 'medical', 'healthcare', 'diagnosis', 'treatment',
       'therapy', 'nursing', 'physician', 'surgery', 'pharmacy', 'medication',
       'electronic health records', 'ehr', 'hipaa', 'telehealth', 'medical coding',
-      'medical billing', 'healthcare administration', 'public health', 'epidemiology'
+      'medical billing', 'healthcare administration', 'public health', 'epidemiology',
+      'mental health', 'telemedicine', 'health insurance', 'clinical trials', 'regulatory affairs',
+      'pharmaceuticals', 'medical device', 'biotech', 'life sciences', 'patient experience'
     ],
     // HR & People
     hr: [
       'recruitment', 'hiring', 'talent acquisition', 'interviewing', 'onboarding',
       'training', 'development', 'performance management', 'compensation', 'benefits',
       'payroll', 'employee relations', 'workforce planning', 'succession planning',
-      'diversity and inclusion', 'hris', 'employee engagement', 'retention'
+      'diversity and inclusion', 'hris', 'employee engagement', 'retention',
+      'hr business partner', 'hr operations', 'talent management', 'dei', 'labor relations',
+      'organizational development', 'total rewards', 'people analytics', 'hrbp'
     ],
     // Other Professional Skills
     professional: [
       'communication', 'leadership', 'problem solving', 'critical thinking', 'decision making',
       'time management', 'organization', 'multitasking', 'adaptability', 'teamwork',
       'collaboration', 'conflict resolution', 'presentation', 'public speaking', 'analytical',
-      'research', 'detail oriented', 'creativity', 'innovation', 'mentoring', 'coaching'
+      'research', 'detail oriented', 'creativity', 'innovation', 'mentoring', 'coaching',
+      'cross-functional', 'interpersonal', 'emotional intelligence', 'strategic thinking',
+      'relationship building', 'negotiation', 'influencing', 'customer-centric', 'client-facing'
     ],
     // Certifications & Qualifications
     certifications: [
       'certified', 'licensed', 'accredited', 'pmp', 'mba', 'cpa', 'cfa', 'aws certified',
       'cisco certified', 'comptia', 'microsoft certified', 'google certified', 'itil',
-      'six sigma', 'scrum master', 'product owner', 'safe', 'cissp', 'ceh'
+      'six sigma', 'scrum master', 'product owner', 'safe', 'cissp', 'ceh', 'csm',
+      'ccna', 'ccnp', 'ccie', 'capm', 'prince2', 'aws solutions architect', 'azure administrator',
+      'certified scrum master', 'certified product owner', 'certified ethical hacker',
+      'certified information systems security professional', 'chartered financial analyst'
+    ],
+    // Industry-specific specialized areas
+    specialized: [
+      'blockchain', 'cryptocurrency', 'nft', 'smart contracts', 'web3',
+      'sustainability', 'esg', 'renewable energy', 'carbon footprint',
+      'iot', 'internet of things', 'embedded systems', 'robotics', 'automation',
+      'vr', 'ar', 'virtual reality', 'augmented reality', 'metaverse',
+      'cybersecurity', 'information security', 'compliance', 'gdpr', 'ccpa',
+      'saas', 'paas', 'iaas', 'cloud computing', 'hybrid cloud', 'multi-cloud'
     ]
   };
   
@@ -163,38 +199,59 @@ export const extractTopKeywords = (jobDescription: string): string[] => {
   
   // Sort by frequency and get top words
   const frequentWords = Object.entries(wordFrequency)
-    .filter(([word]) => !foundIndustryKeywords.includes(word))
+    .filter(([word]) => !foundIndustryKeywords.includes(word) && 
+      !stopWords.includes(word) && 
+      word.length > 4) // Ensure words are substantial
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
+    .slice(0, 8)
     .map(([word]) => word);
   
   // Sort by frequency and get top phrases
   const frequentPhrases = Object.entries(phrases)
-    .filter(([phrase]) => !foundIndustryKeywords.includes(phrase))
+    .filter(([phrase]) => !foundIndustryKeywords.includes(phrase) &&
+      // Ensure neither word in phrase is a stop word
+      !phrase.split(' ').some(word => stopWords.includes(word)))
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 5)
+    .slice(0, 8)
     .map(([phrase]) => phrase);
   
   // Combine industry keywords, frequent words, and phrases, prioritizing industry terms
-  // Limit to top 20 for better focus
+  // Limit to top 25 for better focus (increased from 20)
   const priorityKeywords = [...foundIndustryKeywords];
-  const remainingSlots = Math.max(0, 20 - priorityKeywords.length);
+  const remainingSlots = Math.max(0, 25 - priorityKeywords.length);
   
   // Add other high-frequency words and phrases to fill remaining slots
   const additionalKeywords = [...frequentPhrases, ...frequentWords].slice(0, remainingSlots);
   
-  const allKeywords = [...priorityKeywords, ...additionalKeywords];
+  // Get unique keywords only
+  const allKeywords = Array.from(new Set([...priorityKeywords, ...additionalKeywords]));
   
   return allKeywords;
 };
 
-// Analyze which keywords are present in the resume
+// Analyze which keywords are present in the resume with improved matching
 export const analyzeKeywords = (resumeText: string, keywords: string[]): Record<string, boolean> => {
   const text = resumeText.toLowerCase();
   const results: Record<string, boolean> = {};
   
   keywords.forEach(keyword => {
-    results[keyword] = text.includes(keyword);
+    // Try different variations of the keyword
+    const variations = [
+      keyword,                                 // Exact match
+      keyword.replace(/-/g, ' '),             // Replace hyphens with spaces
+      keyword.replace(/ /g, '-'),             // Replace spaces with hyphens
+      keyword.replace(/ing\b/g, ''),          // Remove -ing suffix
+      keyword.replace(/s\b/g, ''),            // Remove plural s
+      keyword.replace(/ed\b/g, ''),           // Remove -ed suffix
+      keyword.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase() // Split camelCase
+    ];
+    
+    // Check for any variant matches
+    results[keyword] = variations.some(variant => 
+      text.includes(variant) || 
+      // Also check for word boundary matches
+      new RegExp(`\\b${variant}\\b`, 'i').test(text)
+    );
   });
   
   return results;

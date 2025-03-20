@@ -87,10 +87,10 @@ const Index = () => {
       {/* Theme toggle in the top right */}
       <div className="fixed top-4 right-4 z-50">
         <Button 
-          variant="ghost" 
+          variant="outline" 
           size="icon" 
           onClick={toggleTheme}
-          className="rounded-full bg-background/50 backdrop-blur-sm"
+          className="rounded-full bg-background/60 backdrop-blur-md shadow-sm"
         >
           {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
