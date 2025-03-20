@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -48,7 +47,6 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
   const chartRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    // Trigger animation for charts when component mounts
     const handleIntersection = (entries: IntersectionObserverEntry[]) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -88,35 +86,30 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
     generateReport(results);
   };
   
-  // Helper function to determine score color
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-500';
     if (score >= 60) return 'text-yellow-500';
     return 'text-red-500';
   };
   
-  // Helper function to determine status
   const getStatus = (score: number) => {
     if (score >= 80) return 'Excellent';
     if (score >= 60) return 'Good';
     return 'Needs Improvement';
   };
   
-  // Helper function to get status color
   const getStatusColor = (score: number) => {
     if (score >= 80) return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
     if (score >= 60) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
     return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
   };
 
-  // Prepare data for bar chart
   const barChartData = [
     { name: 'ATS Score', value: atsScore },
     { name: 'Keyword Match', value: keywordMatchPercentage },
     { name: 'Interview Probability', value: interviewProbability }
   ];
 
-  // Prepare data for treemap chart (replacing pie chart)
   const totalKeywords = Object.keys(keywordMatches).length;
   const matchedKeywords = Object.values(keywordMatches).filter(Boolean).length;
   
@@ -130,7 +123,6 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
     }
   ];
 
-  // Prepare data for radar chart
   const radarData = [
     { subject: 'Keyword Match', A: keywordMatchPercentage, fullMark: 100 },
     { subject: 'Format', A: atsScore > 70 ? 90 : 70, fullMark: 100 },
@@ -139,7 +131,6 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
     { subject: 'Relevance', A: interviewProbability, fullMark: 100 },
   ];
 
-  // Prepare data for area chart - historical trend simulation
   const areaChartData = [
     { name: 'Initial', score: Math.max(30, atsScore - 40) },
     { name: 'Draft 1', score: Math.max(45, atsScore - 30) },
@@ -148,12 +139,11 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
     { name: 'Target', score: Math.min(100, atsScore + 10) }
   ];
   
-  // Prepare data for scatter chart (keyword distribution)
   const scatterData = Object.entries(keywordMatches).map(([keyword, found], index) => ({
     keyword,
-    x: index % 4,  // Distribute across 4 columns
-    y: Math.floor(index / 4),  // Rows depend on number of items
-    z: found ? 200 : 50,  // Size - larger for found keywords
+    x: index % 4,
+    y: Math.floor(index / 4),
+    z: found ? 200 : 50,
     found
   }));
 
@@ -452,7 +442,6 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
                 <Treemap
                   data={keywordTreemapData}
                   dataKey="size"
-                  ratio={4/3}
                   stroke="#fff"
                   animationDuration={1500}
                   animationEasing="ease-out"
