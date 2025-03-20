@@ -1,5 +1,5 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
   Download, 
@@ -14,6 +14,19 @@ import {
 } from "lucide-react";
 import { cn } from '@/lib/utils';
 import { generateReport } from '@/utils/reportGenerator';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from 'recharts';
 
 interface ResultsProps {
   results: any;
@@ -59,6 +72,23 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
     if (score >= 60) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
     return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
   };
+
+  // Prepare data for bar chart
+  const barChartData = [
+    { name: 'ATS Score', value: atsScore },
+    { name: 'Keyword Match', value: keywordMatchPercentage },
+    { name: 'Interview Probability', value: interviewProbability }
+  ];
+
+  // Prepare data for pie chart
+  const totalKeywords = Object.keys(keywordMatches).length;
+  const matchedKeywords = Object.values(keywordMatches).filter(Boolean).length;
+  const pieChartData = [
+    { name: 'Matched', value: matchedKeywords },
+    { name: 'Missing', value: totalKeywords - matchedKeywords }
+  ];
+  
+  const COLORS = ['#00C49F', '#FF8042'];
 
   return (
     <div className="animate-fade-in">
@@ -159,7 +189,7 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
                   These keywords were found in the job description but are missing from your resume:
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {missingKeywords.map((keyword: string, index: number) => (
+                  {Array.from(new Set(missingKeywords)).map((keyword: string, index: number) => (
                     <div key={index} className="bg-white dark:bg-red-800/30 px-3 py-1 rounded-full text-sm border border-red-200 dark:border-red-700 flex items-center dark:text-red-200">
                       <XCircle className="w-4 h-4 text-red-500 mr-1" />
                       {keyword}
@@ -217,6 +247,55 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
         
         <div className="space-y-6">
           <div>
+            <h4 className="text-lg font-semibold mb-3">Score Analysis</h4>
+            <div className="bg-secondary/50 dark:bg-secondary/30 rounded-lg p-4">
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={barChartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#666" />
+                  <XAxis dataKey="name" stroke="#888" fontSize={12} />
+                  <YAxis stroke="#888" fontSize={12} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }}
+                    itemStyle={{ color: '#fff' }}
+                    labelStyle={{ color: '#fff' }}
+                  />
+                  <Bar dataKey="value" fill="#3b82f6" radius={[5, 5, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="text-lg font-semibold mb-3">Keyword Coverage</h4>
+            <div className="bg-secondary/50 dark:bg-secondary/30 rounded-lg p-4">
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={pieChartData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {pieChartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }} 
+                    itemStyle={{ color: '#fff' }}
+                    formatter={(value, name) => [`${value} keywords`, name]}
+                  />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+          
+          <div>
             <h4 className="text-lg font-semibold mb-3">Improvement Tips</h4>
             
             <div className="bg-secondary/50 dark:bg-secondary/30 rounded-lg p-4 space-y-4">
@@ -269,23 +348,6 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
                   <p className="text-xs text-muted-foreground">Save as a standard PDF with selectable text</p>
                 </div>
               </div>
-            </div>
-          </div>
-          
-          <div className="bg-primary/5 dark:bg-primary/10 rounded-lg p-4 border border-primary/10">
-            <h4 className="text-sm font-medium mb-2">Need More Help?</h4>
-            <p className="text-xs text-muted-foreground mb-4">
-              Check out our free resources to help you optimize your resume and increase your chances of landing interviews.
-            </p>
-            <div className="space-y-2">
-              <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-                <FileText className="w-4 h-4" />
-                Free Resume Templates
-              </Button>
-              <Button variant="outline" size="sm" className="w-full justify-start gap-2">
-                <Mail className="w-4 h-4" />
-                Email Format Guide
-              </Button>
             </div>
           </div>
           

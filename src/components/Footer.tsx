@@ -11,7 +11,7 @@ const Footer = () => {
   return (
     <footer className="bg-secondary/30 border-t border-border">
       <div className="section-container py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
             <div className="flex items-center mb-4">
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center mr-3">
@@ -31,24 +31,6 @@ const Footer = () => {
               <span className="mx-2">•</span>
               <span>Client-Side Only</span>
             </div>
-          </div>
-          
-          <div>
-            <h4 className="font-semibold mb-4">Resources</h4>
-            <ul className="space-y-2">
-              <li><a href="https://www.indeed.com/career-advice/resume-samples" 
-                  onClick={() => openExternalLink("https://www.indeed.com/career-advice/resume-samples")}
-                  className="text-muted-foreground hover:text-foreground transition-colors">Resume Templates</a></li>
-              <li><a href="https://www.jobscan.co/blog/ats-friendly-resume/"
-                  onClick={() => openExternalLink("https://www.jobscan.co/blog/ats-friendly-resume/")}
-                  className="text-muted-foreground hover:text-foreground transition-colors">ATS Guide</a></li>
-              <li><a href="https://www.thebalancemoney.com/how-to-include-keywords-on-resume-4151353"
-                  onClick={() => openExternalLink("https://www.thebalancemoney.com/how-to-include-keywords-on-resume-4151353")}
-                  className="text-muted-foreground hover:text-foreground transition-colors">Keyword Optimization</a></li>
-              <li><a href="https://www.themuse.com/advice/interview-questions-and-answers"
-                  onClick={() => openExternalLink("https://www.themuse.com/advice/interview-questions-and-answers")}
-                  className="text-muted-foreground hover:text-foreground transition-colors">Interview Tips</a></li>
-            </ul>
           </div>
           
           <div>
