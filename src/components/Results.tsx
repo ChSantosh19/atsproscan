@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -10,7 +11,8 @@ import {
   FileText,
   RotateCcw,
   TrendingUp,
-  Award
+  Award,
+  Lightbulb
 } from "lucide-react";
 import { cn } from '@/lib/utils';
 import { generateReport } from '@/utils/reportGenerator';
@@ -79,7 +81,13 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
     atsScore, 
     keywordMatchPercentage, 
     interviewProbability, 
-    missingKeywords 
+    missingKeywords,
+    sectionScore,
+    industryRelevanceScore,
+    formatting,
+    contactInfo,
+    education,
+    penalties
   } = results;
   
   const handleDownload = () => {
@@ -146,6 +154,104 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
     z: found ? 200 : 50,
     found
   }));
+
+  // Generate personalized recommendations based on the analysis results
+  const generateRecommendations = () => {
+    const recommendations = [];
+    
+    // Keyword recommendations
+    if (missingKeywords.length > 0) {
+      recommendations.push({
+        title: "Add Missing Keywords",
+        description: `Include these key terms: ${missingKeywords.slice(0, 5).join(', ')}${missingKeywords.length > 5 ? '...' : ''}`,
+        priority: "High"
+      });
+    }
+    
+    // Format recommendations
+    if (!formatting?.hasBulletPoints) {
+      recommendations.push({
+        title: "Use Bullet Points",
+        description: "Break up dense paragraphs with bullet points to improve scannability",
+        priority: "Medium"
+      });
+    }
+    
+    if (!formatting?.hasQuantifiableAchievements) {
+      recommendations.push({
+        title: "Add Quantifiable Achievements",
+        description: "Include numbers and percentages to showcase your impact (e.g., 'increased sales by 20%')",
+        priority: "High"
+      });
+    }
+    
+    if (formatting?.actionVerbsScore < 5) {
+      recommendations.push({
+        title: "Use Strong Action Verbs",
+        description: "Start bullet points with powerful verbs like 'achieved', 'launched', 'implemented', etc.",
+        priority: "Medium"
+      });
+    }
+    
+    // Structure recommendations
+    if (sectionScore < 10) {
+      recommendations.push({
+        title: "Improve Section Structure",
+        description: "Include standard sections like Experience, Education, Skills, and Projects",
+        priority: "High" 
+      });
+    }
+    
+    // Contact info recommendations
+    if (!contactInfo?.hasLinkedIn) {
+      recommendations.push({
+        title: "Add LinkedIn Profile",
+        description: "Include your LinkedIn URL to provide more context about your experience",
+        priority: "Low"
+      });
+    }
+    
+    if (!contactInfo?.hasPortfolio && keywordMatchPercentage < 60) {
+      recommendations.push({
+        title: "Add Portfolio/Github Link",
+        description: "Include links to your work to demonstrate your skills directly",
+        priority: "Medium"
+      });
+    }
+    
+    // Length recommendation
+    if (penalties?.lengthPenalty < 0) {
+      recommendations.push({
+        title: "Optimize Resume Length",
+        description: penalties.lengthPenalty === -10 
+          ? "Your resume appears too short. Expand on your experience and skills."
+          : "Your resume may be too long. Focus on the most relevant information.",
+        priority: "Medium"
+      });
+    }
+    
+    // Formatting penalty recommendations
+    if (penalties?.formattingPenalty < 0) {
+      recommendations.push({
+        title: "Simplify Formatting",
+        description: "Remove complex formatting that may confuse ATS systems",
+        priority: "High"
+      });
+    }
+    
+    // Make sure we have at least some recommendations
+    if (recommendations.length === 0) {
+      recommendations.push({
+        title: "Finalize Your Resume",
+        description: "Your resume looks great! Consider having it professionally proofread once more.",
+        priority: "Low"
+      });
+    }
+    
+    return recommendations;
+  };
+  
+  const recommendations = generateRecommendations();
 
   return (
     <div className="animate-fade-in">
@@ -261,9 +367,51 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
               </div>
             )}
           </div>
-          
+
           <div>
             <h4 className="text-lg font-semibold mb-3 flex items-center gap-2 animate-slide-down delay-200">
+              <Lightbulb className="w-5 h-5 text-primary" /> Recommended Resume Changes
+            </h4>
+            
+            <div className="bg-secondary/50 dark:bg-secondary/30 backdrop-blur-sm rounded-lg p-4 animate-fade-in delay-300">
+              <p className="text-sm text-muted-foreground mb-3">
+                Based on our analysis, here are specific improvements you can make:
+              </p>
+              
+              <div className="space-y-3">
+                {recommendations.map((rec, index) => (
+                  <div key={index} className="p-3 border border-secondary/60 rounded-lg hover:border-primary/30 transition-all">
+                    <div className="flex items-center justify-between">
+                      <h5 className="font-medium">{rec.title}</h5>
+                      <span className={cn(
+                        "text-xs font-medium px-2 py-0.5 rounded-full",
+                        rec.priority === "High" ? "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300" :
+                        rec.priority === "Medium" ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300" :
+                        "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                      )}>
+                        {rec.priority} Priority
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1">{rec.description}</p>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-4 p-3 bg-primary/5 border border-primary/10 rounded-lg">
+                <h5 className="text-sm font-medium mb-2">Pro Tips:</h5>
+                <ul className="list-disc pl-5 text-xs space-y-1 text-muted-foreground">
+                  <li>Tailor your resume for each job application</li>
+                  <li>Use industry-standard section headers like "Experience" instead of creative alternatives</li>
+                  <li>Save your resume as a standard PDF with selectable text</li>
+                  <li>Include a skills section with both technical and soft skills relevant to the role</li>
+                  <li>Remove images, icons, and complex formatting that may confuse ATS systems</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="text-lg font-semibold mb-3 flex items-center gap-2 animate-slide-down delay-300">
               <TrendingUp className="w-5 h-5 text-primary" /> Interview Potential
             </h4>
             
@@ -312,99 +460,105 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
           </div>
           
           <div>
-            <h4 className="text-lg font-semibold mb-3 flex items-center gap-2 animate-slide-down delay-300">
+            <h4 className="text-lg font-semibold mb-3 flex items-center gap-2 animate-slide-down delay-400">
               <Award className="w-5 h-5 text-primary" /> Competency Radar
             </h4>
             
             <div className="bg-secondary/50 dark:bg-secondary/30 backdrop-blur-sm rounded-lg p-4 chart-container opacity-0">
-              <ResponsiveContainer width="100%" height={250}>
-                <RadarChart outerRadius={90} data={radarData}>
-                  <PolarGrid stroke="#666" />
-                  <PolarAngleAxis dataKey="subject" stroke="#888" />
-                  <PolarRadiusAxis stroke="#888" />
-                  <Radar
-                    name="Resume"
-                    dataKey="A"
-                    stroke="#3b82f6"
-                    fill="#3b82f6"
-                    fillOpacity={0.5}
-                  />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }}
-                    itemStyle={{ color: '#fff' }}
-                  />
-                </RadarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          
-          <div>
-            <h4 className="text-lg font-semibold mb-3 flex items-center gap-2 animate-slide-down delay-400">
-              <TrendingUp className="w-5 h-5 text-primary" /> Improvement Trend
-            </h4>
-            
-            <div className="bg-secondary/50 dark:bg-secondary/30 backdrop-blur-sm rounded-lg p-4 chart-container opacity-0">
-              <ResponsiveContainer width="100%" height={200}>
-                <AreaChart data={areaChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#666" />
-                  <XAxis dataKey="name" stroke="#888" />
-                  <YAxis stroke="#888" domain={[0, 100]} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }}
-                    itemStyle={{ color: '#fff' }}
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="score" 
-                    stroke="#3b82f6" 
-                    fill="#3b82f6" 
-                    fillOpacity={0.6} 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <div style={{ width: '100%', height: '250px' }}>
+                <ResponsiveContainer>
+                  <RadarChart outerRadius={90} data={radarData}>
+                    <PolarGrid stroke="#666" />
+                    <PolarAngleAxis dataKey="subject" stroke="#888" />
+                    <PolarRadiusAxis stroke="#888" />
+                    <Radar
+                      name="Resume"
+                      dataKey="A"
+                      stroke="#3b82f6"
+                      fill="#3b82f6"
+                      fillOpacity={0.5}
+                    />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }}
+                      itemStyle={{ color: '#fff' }}
+                    />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
           
           <div>
             <h4 className="text-lg font-semibold mb-3 flex items-center gap-2 animate-slide-down delay-500">
+              <TrendingUp className="w-5 h-5 text-primary" /> Improvement Trend
+            </h4>
+            
+            <div className="bg-secondary/50 dark:bg-secondary/30 backdrop-blur-sm rounded-lg p-4 chart-container opacity-0">
+              <div style={{ width: '100%', height: '200px' }}>
+                <ResponsiveContainer>
+                  <AreaChart data={areaChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#666" />
+                    <XAxis dataKey="name" stroke="#888" />
+                    <YAxis stroke="#888" domain={[0, 100]} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }}
+                      itemStyle={{ color: '#fff' }}
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="score" 
+                      stroke="#3b82f6" 
+                      fill="#3b82f6" 
+                      fillOpacity={0.6} 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <h4 className="text-lg font-semibold mb-3 flex items-center gap-2 animate-slide-down delay-600">
               <FileText className="w-5 h-5 text-primary" /> Keyword Distribution
             </h4>
             
             <div className="bg-secondary/50 dark:bg-secondary/30 backdrop-blur-sm rounded-lg p-4 chart-container opacity-0">
-              <ResponsiveContainer width="100%" height={250}>
-                <ScatterChart
-                  margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" dataKey="x" name="category" tick={false} />
-                  <YAxis type="number" dataKey="y" name="group" tick={false} />
-                  <ZAxis type="number" dataKey="z" range={[50, 200]} />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }}
-                    formatter={(value, name, props) => {
-                      if (name === 'z') return null;
-                      return props.payload.keyword;
-                    }}
-                    cursor={{ strokeDasharray: '3 3' }}
-                  />
-                  <Scatter 
-                    data={scatterData.filter(item => item.found)} 
-                    fill="#4ade80" 
-                    shape="circle"
-                  />
-                  <Scatter 
-                    data={scatterData.filter(item => !item.found)} 
-                    fill="#fb923c" 
-                    shape="circle"
-                  />
-                  <Legend 
-                    payload={[
-                      { value: 'Found Keywords', type: 'circle', color: '#4ade80' },
-                      { value: 'Missing Keywords', type: 'circle', color: '#fb923c' }
-                    ]}
-                  />
-                </ScatterChart>
-              </ResponsiveContainer>
+              <div style={{ width: '100%', height: '250px' }}>
+                <ResponsiveContainer>
+                  <ScatterChart
+                    margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" dataKey="x" name="category" tick={false} />
+                    <YAxis type="number" dataKey="y" name="group" tick={false} />
+                    <ZAxis type="number" dataKey="z" range={[50, 200]} />
+                    <Tooltip
+                      contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }}
+                      formatter={(value, name, props) => {
+                        if (name === 'z') return null;
+                        return props.payload.keyword;
+                      }}
+                      cursor={{ strokeDasharray: '3 3' }}
+                    />
+                    <Scatter 
+                      data={scatterData.filter(item => item.found)} 
+                      fill="#4ade80" 
+                      shape="circle"
+                    />
+                    <Scatter 
+                      data={scatterData.filter(item => !item.found)} 
+                      fill="#fb923c" 
+                      shape="circle"
+                    />
+                    <Legend 
+                      payload={[
+                        { value: 'Found Keywords', type: 'circle', color: '#4ade80' },
+                        { value: 'Missing Keywords', type: 'circle', color: '#fb923c' }
+                      ]}
+                    />
+                  </ScatterChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         </div>
@@ -413,49 +567,53 @@ const Results = ({ results, onReset, onBack }: ResultsProps) => {
           <div>
             <h4 className="text-lg font-semibold mb-3 animate-slide-down">Score Analysis</h4>
             <div className="bg-secondary/50 dark:bg-secondary/30 backdrop-blur-sm rounded-lg p-4 chart-container opacity-0">
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={barChartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#666" />
-                  <XAxis dataKey="name" stroke="#888" fontSize={12} />
-                  <YAxis stroke="#888" fontSize={12} />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }}
-                    itemStyle={{ color: '#fff' }}
-                    labelStyle={{ color: '#fff' }}
-                  />
-                  <Bar 
-                    dataKey="value" 
-                    fill="#3b82f6" 
-                    radius={[5, 5, 0, 0]} 
-                    animationDuration={1500}
-                    animationEasing="ease-out"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+              <div style={{ width: '100%', height: '200px' }}>
+                <ResponsiveContainer>
+                  <BarChart data={barChartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#666" />
+                    <XAxis dataKey="name" stroke="#888" fontSize={12} />
+                    <YAxis stroke="#888" fontSize={12} />
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }}
+                      itemStyle={{ color: '#fff' }}
+                      labelStyle={{ color: '#fff' }}
+                    />
+                    <Bar 
+                      dataKey="value" 
+                      fill="#3b82f6" 
+                      radius={[5, 5, 0, 0]} 
+                      animationDuration={1500}
+                      animationEasing="ease-out"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
           
           <div>
             <h4 className="text-lg font-semibold mb-3 animate-slide-down delay-100">Keyword Coverage</h4>
             <div className="bg-secondary/50 dark:bg-secondary/30 backdrop-blur-sm rounded-lg p-4 chart-container opacity-0">
-              <ResponsiveContainer width="100%" height={220}>
-                <Treemap
-                  data={keywordTreemapData}
-                  dataKey="size"
-                  stroke="#fff"
-                  animationDuration={1500}
-                  animationEasing="ease-out"
-                >
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }} 
-                    itemStyle={{ color: '#fff' }}
-                    formatter={(value, name) => [`${value} keywords`, name]}
-                  />
-                  {keywordTreemapData[0].children.map((item, index) => (
-                    <Cell key={`cell-${index}`} fill={item.color} />
-                  ))}
-                </Treemap>
-              </ResponsiveContainer>
+              <div style={{ width: '100%', height: '220px' }}>
+                <ResponsiveContainer>
+                  <Treemap
+                    data={keywordTreemapData}
+                    dataKey="size"
+                    stroke="#fff"
+                    animationDuration={1500}
+                    animationEasing="ease-out"
+                  >
+                    <Tooltip 
+                      contentStyle={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', border: 'none' }} 
+                      itemStyle={{ color: '#fff' }}
+                      formatter={(value, name) => [`${value} keywords`, name]}
+                    />
+                    {keywordTreemapData[0].children.map((item, index) => (
+                      <Cell key={`cell-${index}`} fill={item.color} />
+                    ))}
+                  </Treemap>
+                </ResponsiveContainer>
+              </div>
               <div className="flex justify-center mt-3 gap-4">
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-[#4ade80] rounded-sm mr-1"></div>
